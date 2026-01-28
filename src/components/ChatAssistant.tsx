@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MessageCircle, Send, X, Bot, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,29 +29,43 @@ const ChatAssistant = () => {
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
+  useEffect(() => {
+    const handleCustomSearch = (event: any) => {
+      const query = event.detail;
+      setIsOpen(true);
+      handleSend(query);
+    };
+
+    window.addEventListener('open-chat-with-query', handleCustomSearch as EventListener);
+    return () => window.removeEventListener('open-chat-with-query', handleCustomSearch as EventListener);
+  }, []);
+
   const simulateBotResponse = (userText: string) => {
     setIsTyping(true);
 
     // Simulate specialized responses based on common keywords
-    let responseText = "Entiendo perfectamente. Esa página oficial puede ser un lío. Dame un segundo y te busco el enlace directo y la lista de documentos que no te pueden faltar.";
+    let responseText = "Buscando información oficial... Encontrado. Para completar ese trámite necesitas entrar en la sede electrónica oficial. ¿Te gustaría que te envíe el enlace directo?";
 
-    if (userText.toLowerCase().includes("dni")) {
-      responseText = "Para renovar el DNI necesitas cita previa en citapreviadnie.es. Debes llevar una foto reciente, el DNI anterior y 12€ en efectivo (o pagar telemáticamente). ¿Quieres que te envíe el enlace directo?";
-    } else if (userText.toLowerCase().includes("empadronamiento") || userText.toLowerCase().includes("padron")) {
-      responseText = "El certificado de empadronamiento se solicita en el Ayuntamiento de tu ciudad. Muchos ya permiten la descarga online con Certificado Digital o Cl@ve. ¿En qué ciudad vives?";
-    } else if (userText.toLowerCase().includes("vida laboral")) {
-      responseText = "Puedes descargar tu Informe de Vida Laboral al instante desde el portal Import@ss de la Seguridad Social. Solo necesitas recibir un SMS en tu móvil. ¿Te paso el link?";
+    const lowers = userText.toLowerCase();
+    if (lowers.includes("dni")) {
+      responseText = "📍 Renovar DNI: Necesitas cita previa en citapreviadnie.es. Debes llevar: Foto reciente, el DNI antiguo y 12€ (en efectivo o pago telemático). ¿Quieres el link de cita?";
+    } else if (lowers.includes("padron") || lowers.includes("empadronamiento")) {
+      responseText = "🏠 Padrón: Ve a la web de tu Ayuntamiento. Si tienes Cl@ve o Certificado Digital, puedes descargar el 'Volante' al instante. ¿Sabes si tu Ayuntamiento tiene sede online?";
+    } else if (lowers.includes("vida laboral")) {
+      responseText = "👷 Vida Laboral: El método más rápido es vía SMS en el portal Import@ss. Recibes un código en el móvil y descargas el PDF al momento. ¿Te paso el enlace?";
+    } else if (lowers.includes("madrid") || lowers.includes("catalunya") || lowers.includes("andalucía") || lowers.includes("valenciana") || lowers.includes("vasco")) {
+      responseText = `🏢 He encontrado acceso directo a los trámites de la administración que buscas. ¿Qué gestión en concreto necesitas realizar allí?`;
     }
 
     setTimeout(() => {
       const botResponse: Message = {
-        id: Date.now(),
+        id: Date.now() + Math.random(),
         text: responseText,
         isBot: true,
       };
       setMessages((prev) => [...prev, botResponse]);
       setIsTyping(false);
-    }, 1500);
+    }, 1200);
   };
 
   const handleSend = (textOverride?: string) => {

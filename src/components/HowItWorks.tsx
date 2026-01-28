@@ -58,7 +58,19 @@ const HowItWorks = () => {
                   <div className="hidden lg:block absolute top-12 left-[60%] w-[80%] h-0.5 bg-border" />
                 )}
 
-                <div className="bg-card rounded-2xl p-6 shadow-soft hover:shadow-medium transition-all duration-300 border border-border h-full">
+                <div
+                  className="bg-card rounded-2xl p-6 shadow-soft hover:shadow-medium transition-all duration-300 border border-border h-full cursor-pointer hover:border-primary/20"
+                  onClick={() => {
+                    const queries: Record<string, string> = {
+                      "Escribe tu duda": "Quiero buscar un trámite",
+                      "Entiendo los pasos": "Qué documentos necesito",
+                      "Accede al instante": "Enlace oficial de trámites",
+                      "Trámite hecho": "Cómo descargar justificante"
+                    };
+                    const event = new CustomEvent('open-chat-with-query', { detail: queries[step.title] || step.title });
+                    window.dispatchEvent(event);
+                  }}
+                >
                   {/* Step number */}
                   <div className="absolute -top-3 -left-3 w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-sm font-bold shadow-accent">
                     {index + 1}

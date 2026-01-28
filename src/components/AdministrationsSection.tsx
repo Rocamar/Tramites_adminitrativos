@@ -69,11 +69,10 @@ const AdministrationsSection = () => {
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                   <Building2 className="h-6 w-6 text-primary" />
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                  admin.type === "Estatal" 
-                    ? "bg-terracotta/10 text-terracotta" 
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${admin.type === "Estatal"
+                    ? "bg-terracotta/10 text-terracotta"
                     : "bg-olive-light/20 text-olive"
-                }`}>
+                  }`}>
                   {admin.type}
                 </span>
               </div>
@@ -91,7 +90,15 @@ const AdministrationsSection = () => {
                 <span className="text-sm text-muted-foreground">
                   {admin.procedures} trámites
                 </span>
-                <Button variant="ghost" size="sm" className="text-primary hover:text-primary group-hover:translate-x-1 transition-transform">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-primary hover:text-primary group-hover:translate-x-1 transition-transform"
+                  onClick={() => {
+                    const event = new CustomEvent('open-chat-with-query', { detail: `Trámites de ${admin.name}` });
+                    window.dispatchEvent(event);
+                  }}
+                >
                   Ver trámites
                   <ExternalLink className="ml-1 h-3 w-3" />
                 </Button>
@@ -102,7 +109,11 @@ const AdministrationsSection = () => {
 
         {/* View all button */}
         <div className="text-center mt-12">
-          <Button variant="outline" size="lg">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => document.getElementById('search-section')?.scrollIntoView({ behavior: 'smooth' })}
+          >
             <MapPin className="mr-2 h-4 w-4" />
             Ver todas las administraciones
           </Button>

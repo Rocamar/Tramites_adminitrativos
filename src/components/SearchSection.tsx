@@ -77,11 +77,8 @@ const SearchSection = () => {
                 className="h-14 px-8"
                 onClick={() => {
                   if (!searchQuery.trim()) return;
-                  const chatBtn = document.querySelector('button[aria-label="Abrir asistente"]') as HTMLButtonElement;
-                  chatBtn?.click();
-                  // Use a simplified way to "talk" to the chat or just alert for now.
-                  // For a better experience, we could use a global state, but alerting the user is a quick fix to "show something happens"
-                  alert(`Buscando: ${searchQuery}. El asistente virtual te dará los resultados en un segundo.`);
+                  const event = new CustomEvent('open-chat-with-query', { detail: searchQuery });
+                  window.dispatchEvent(event);
                 }}
               >
                 Buscar
@@ -95,7 +92,11 @@ const SearchSection = () => {
                 {popularSearches.map((search, index) => (
                   <button
                     key={index}
-                    onClick={() => setSearchQuery(search)}
+                    onClick={() => {
+                      setSearchQuery(search);
+                      const event = new CustomEvent('open-chat-with-query', { detail: search });
+                      window.dispatchEvent(event);
+                    }}
                     className="px-3 py-1.5 text-sm rounded-full bg-secondary text-secondary-foreground hover:bg-sand-dark transition-colors"
                   >
                     {search}
