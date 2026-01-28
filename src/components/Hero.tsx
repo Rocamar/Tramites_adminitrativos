@@ -20,18 +20,18 @@ const Hero = () => {
           </div>
 
           {/* Headline */}
-          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-primary-foreground mb-6 animate-fade-up" style={{ animationDelay: '0.1s' }}>
+          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-primary-foreground mb-6 animate-fade-up" style={{ animationDelay: '0.05s' }}>
             Domina la burocracia
             <span className="block mt-2 text-terracotta-light">sin perder los nervios</span>
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg md:text-xl text-primary-foreground/85 mb-10 max-w-2xl mx-auto animate-fade-up" style={{ animationDelay: '0.2s' }}>
+          <p className="text-lg md:text-xl text-primary-foreground/85 mb-10 max-w-2xl mx-auto animate-fade-up" style={{ animationDelay: '0.1s' }}>
             Gestionar el DNI, la Vida Laboral o tu Empadronamiento ya no tiene por qué ser un laberinto. Te guiamos directo al punto exacto, paso a paso.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up" style={{ animationDelay: '0.3s' }}>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up" style={{ animationDelay: '0.15s' }}>
             <Button variant="hero" size="xl" className="group">
               <Search className="mr-2 h-5 w-5" />
               Buscar trámites
@@ -48,7 +48,7 @@ const Hero = () => {
           </div>
 
           {/* Trust indicators */}
-          <div className="mt-16 pt-8 border-t border-primary-foreground/10 animate-fade-up" style={{ animationDelay: '0.4s' }}>
+          <div className="mt-16 pt-8 border-t border-primary-foreground/10 animate-fade-up" style={{ animationDelay: '0.2s' }}>
             <p className="text-sm text-primary-foreground/60 mb-4">Más de 2.500 organismos públicos disponibles</p>
             <div className="flex flex-wrap justify-center gap-8 text-primary-foreground/80">
               <div className="text-center">

@@ -48,7 +48,7 @@ const ChatAssistant = () => {
         isBot: true,
       };
       setMessages((prev) => [...prev, botResponse]);
-    }, 1000);
+    }, 400);
   };
 
   const handleQuickQuestion = (question: string) => {
@@ -70,8 +70,8 @@ const ChatAssistant = () => {
       {/* Chat window */}
       <div
         className={`fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] bg-card rounded-2xl shadow-medium border border-border overflow-hidden transition-all duration-300 ${isOpen
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-4 pointer-events-none"
+          ? "opacity-100 translate-y-0"
+          : "opacity-0 translate-y-4 pointer-events-none"
           }`}
       >
         {/* Header */}
@@ -103,8 +103,8 @@ const ChatAssistant = () => {
             >
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.isBot
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-terracotta text-accent-foreground"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-terracotta text-accent-foreground"
                   }`}
               >
                 {message.isBot ? (
@@ -115,8 +115,8 @@ const ChatAssistant = () => {
               </div>
               <div
                 className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm ${message.isBot
-                    ? "bg-card text-foreground rounded-tl-none border border-border"
-                    : "bg-primary text-primary-foreground rounded-tr-none"
+                  ? "bg-card text-foreground rounded-tl-none border border-border"
+                  : "bg-primary text-primary-foreground rounded-tr-none"
                   }`}
               >
                 {message.text}
