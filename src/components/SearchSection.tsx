@@ -24,7 +24,7 @@ const SearchSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <section className="py-20 bg-background">
+    <section id="search-section" className="py-20 bg-background">
       <div className="container px-4">
         <div className="max-w-4xl mx-auto">
           {/* Section header */}
@@ -47,11 +47,10 @@ const SearchSection = () => {
                   <button
                     key={cat.id}
                     onClick={() => setActiveCategory(cat.id)}
-                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                      activeCategory === cat.id
-                        ? "bg-primary text-primary-foreground shadow-soft"
-                        : "bg-secondary text-secondary-foreground hover:bg-sand-dark"
-                    }`}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${activeCategory === cat.id
+                      ? "bg-primary text-primary-foreground shadow-soft"
+                      : "bg-secondary text-secondary-foreground hover:bg-sand-dark"
+                      }`}
                   >
                     <Icon className="h-4 w-4" />
                     {cat.label}
@@ -72,7 +71,19 @@ const SearchSection = () => {
                   className="pl-12 h-14 text-base rounded-xl border-border bg-background focus:ring-2 focus:ring-primary/20"
                 />
               </div>
-              <Button variant="hero" size="lg" className="h-14 px-8">
+              <Button
+                variant="hero"
+                size="lg"
+                className="h-14 px-8"
+                onClick={() => {
+                  if (!searchQuery.trim()) return;
+                  const chatBtn = document.querySelector('button[aria-label="Abrir asistente"]') as HTMLButtonElement;
+                  chatBtn?.click();
+                  // Use a simplified way to "talk" to the chat or just alert for now.
+                  // For a better experience, we could use a global state, but alerting the user is a quick fix to "show something happens"
+                  alert(`Buscando: ${searchQuery}. El asistente virtual te dará los resultados en un segundo.`);
+                }}
+              >
                 Buscar
               </Button>
             </div>

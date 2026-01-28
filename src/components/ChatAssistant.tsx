@@ -27,32 +27,51 @@ const ChatAssistant = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [inputValue, setInputValue] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
 
-  const handleSend = () => {
-    if (!inputValue.trim()) return;
+  const simulateBotResponse = (userText: string) => {
+    setIsTyping(true);
 
-    const userMessage: Message = {
-      id: messages.length + 1,
-      text: inputValue,
-      isBot: false,
-    };
+    // Simulate specialized responses based on common keywords
+    let responseText = "Entiendo perfectamente. Esa página oficial puede ser un lío. Dame un segundo y te busco el enlace directo y la lista de documentos que no te pueden faltar.";
 
-    setMessages([...messages, userMessage]);
-    setInputValue("");
+    if (userText.toLowerCase().includes("dni")) {
+      responseText = "Para renovar el DNI necesitas cita previa en citapreviadnie.es. Debes llevar una foto reciente, el DNI anterior y 12€ en efectivo (o pagar telemáticamente). ¿Quieres que te envíe el enlace directo?";
+    } else if (userText.toLowerCase().includes("empadronamiento") || userText.toLowerCase().includes("padron")) {
+      responseText = "El certificado de empadronamiento se solicita en el Ayuntamiento de tu ciudad. Muchos ya permiten la descarga online con Certificado Digital o Cl@ve. ¿En qué ciudad vives?";
+    } else if (userText.toLowerCase().includes("vida laboral")) {
+      responseText = "Puedes descargar tu Informe de Vida Laboral al instante desde el portal Import@ss de la Seguridad Social. Solo necesitas recibir un SMS en tu móvil. ¿Te paso el link?";
+    }
 
-    // Simulate bot response
     setTimeout(() => {
       const botResponse: Message = {
-        id: messages.length + 2,
-        text: "Entiendo perfectamente. Esa página oficial puede ser un lío. Dame un segundo y te busco el enlace directo y la lista de documentos que no te pueden faltar.",
+        id: Date.now(),
+        text: responseText,
         isBot: true,
       };
       setMessages((prev) => [...prev, botResponse]);
-    }, 400);
+      setIsTyping(false);
+    }, 1500);
+  };
+
+  const handleSend = (textOverride?: string) => {
+    const textToSendMessage = textOverride || inputValue;
+    if (!textToSendMessage.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now() - 1,
+      text: textToSendMessage,
+      isBot: false,
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue("");
+
+    simulateBotResponse(textToSendMessage);
   };
 
   const handleQuickQuestion = (question: string) => {
-    setInputValue(question);
+    handleSend(question);
   };
 
   return (
@@ -123,12 +142,24 @@ const ChatAssistant = () => {
               </div>
             </div>
           ))}
+          {isTyping && (
+            <div className="flex gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
+                <Bot className="h-4 w-4" />
+              </div>
+              <div className="bg-card text-foreground px-4 py-2.5 rounded-2xl rounded-tl-none border border-border text-sm flex gap-1 items-center">
+                <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" />
+                <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                <span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Quick questions */}
-        {messages.length < 3 && (
+        {messages.length < 5 && (
           <div className="px-4 py-3 border-t border-border bg-card">
-            <p className="text-xs text-muted-foreground mb-2">Preguntas frecuentes:</p>
+            <p className="text-xs text-muted-foreground mb-2">Sugerencias:</p>
             <div className="flex flex-wrap gap-2">
               {quickQuestions.map((question, index) => (
                 <button
@@ -153,7 +184,7 @@ const ChatAssistant = () => {
               placeholder="Escribe tu pregunta..."
               className="flex-1 bg-background"
             />
-            <Button onClick={handleSend} variant="hero" size="icon">
+            <Button onClick={() => handleSend()} variant="hero" size="icon">
               <Send className="h-4 w-4" />
             </Button>
           </div>

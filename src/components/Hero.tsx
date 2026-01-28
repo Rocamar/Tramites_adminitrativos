@@ -32,7 +32,12 @@ const Hero = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up" style={{ animationDelay: '0.15s' }}>
-            <Button variant="hero" size="xl" className="group">
+            <Button
+              variant="hero"
+              size="xl"
+              className="group"
+              onClick={() => document.getElementById('search-section')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               <Search className="mr-2 h-5 w-5" />
               Buscar trámites
               <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -41,6 +46,12 @@ const Hero = () => {
               variant="outline"
               size="xl"
               className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              onClick={() => {
+                // We use a custom event or reach into the ChatAssistant state if possible
+                // For now, let's trigger a click on the floating button which is in the DOM
+                const chatBtn = document.querySelector('button[aria-label="Abrir asistente"]') as HTMLButtonElement;
+                chatBtn?.click();
+              }}
             >
               <MessageCircle className="mr-2 h-5 w-5" />
               Hablar con el asistente
