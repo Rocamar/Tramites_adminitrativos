@@ -12,15 +12,15 @@ interface Message {
 const initialMessages: Message[] = [
   {
     id: 1,
-    text: "¡Hola! Soy tu asistente para trámites administrativos. ¿En qué puedo ayudarte hoy?",
+    text: "¡Hola! Soy tu guía experto. ¿Estás perdido en alguna sede electrónica o necesitas saber qué documentos llevar para tu cita? Dime qué buscas y te lo aclaro en segundos.",
     isBot: true,
   },
 ];
 
 const quickQuestions = [
-  "¿Cómo renuevo el DNI?",
-  "Necesito un certificado de empadronamiento",
-  "¿Dónde solicito la vida laboral?",
+  "¿Cómo renuevo el DNI sin cita?",
+  "Papeles para el empadronamiento",
+  "¿Dónde está mi vida laboral?",
 ];
 
 const ChatAssistant = () => {
@@ -44,7 +44,7 @@ const ChatAssistant = () => {
     setTimeout(() => {
       const botResponse: Message = {
         id: messages.length + 2,
-        text: "Gracias por tu consulta. Estoy buscando la información que necesitas sobre ese trámite. Te explicaré los pasos a seguir y los documentos que necesitarás.",
+        text: "Entiendo perfectamente. Esa página oficial puede ser un lío. Dame un segundo y te busco el enlace directo y la lista de documentos que no te pueden faltar.",
         isBot: true,
       };
       setMessages((prev) => [...prev, botResponse]);
@@ -60,9 +60,8 @@ const ChatAssistant = () => {
       {/* Chat button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full gradient-accent shadow-accent flex items-center justify-center transition-all duration-300 hover:scale-105 ${
-          isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
-        }`}
+        className={`fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full gradient-accent shadow-accent flex items-center justify-center transition-all duration-300 hover:scale-105 ${isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+          }`}
         aria-label="Abrir asistente"
       >
         <MessageCircle className="h-7 w-7 text-accent-foreground" />
@@ -70,11 +69,10 @@ const ChatAssistant = () => {
 
       {/* Chat window */}
       <div
-        className={`fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] bg-card rounded-2xl shadow-medium border border-border overflow-hidden transition-all duration-300 ${
-          isOpen
+        className={`fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-48px)] bg-card rounded-2xl shadow-medium border border-border overflow-hidden transition-all duration-300 ${isOpen
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-4 pointer-events-none"
-        }`}
+          }`}
       >
         {/* Header */}
         <div className="gradient-hero p-4 flex items-center justify-between">
@@ -104,11 +102,10 @@ const ChatAssistant = () => {
               className={`flex gap-2 ${message.isBot ? "" : "flex-row-reverse"}`}
             >
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  message.isBot
+                className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${message.isBot
                     ? "bg-primary text-primary-foreground"
                     : "bg-terracotta text-accent-foreground"
-                }`}
+                  }`}
               >
                 {message.isBot ? (
                   <Bot className="h-4 w-4" />
@@ -117,11 +114,10 @@ const ChatAssistant = () => {
                 )}
               </div>
               <div
-                className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm ${
-                  message.isBot
+                className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm ${message.isBot
                     ? "bg-card text-foreground rounded-tl-none border border-border"
                     : "bg-primary text-primary-foreground rounded-tr-none"
-                }`}
+                  }`}
               >
                 {message.text}
               </div>

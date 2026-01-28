@@ -3,23 +3,23 @@ import { Shield, Lock, Clock, Award } from "lucide-react";
 const trustItems = [
   {
     icon: Shield,
-    title: "Fuentes oficiales",
-    description: "Toda la información proviene directamente de las sedes electrónicas oficiales.",
+    title: "100% Verificado",
+    description: "Conectamos directamente con las sedes oficiales para garantizar información real.",
   },
   {
     icon: Lock,
-    title: "Privacidad garantizada",
-    description: "No almacenamos tus datos personales. Tú controlas tu información.",
+    title: "Privacidad Blindada",
+    description: "No almacenamos tus datos. Tu gestión ocurre entre tú y la administración.",
   },
   {
     icon: Clock,
-    title: "Información actualizada",
-    description: "Nuestro equipo revisa y actualiza los procedimientos regularmente.",
+    title: "Sin Rodeos",
+    description: "Te guiamos al enlace exacto del trámite, ahorrándote horas de búsqueda.",
   },
   {
     icon: Award,
-    title: "Sin intermediarios",
-    description: "Te conectamos directamente con la administración, sin costes adicionales.",
+    title: "Fácil para Humanos",
+    description: "Traducimos el lenguaje oficial a pasos sencillos que todos entendemos.",
   },
 ];
 

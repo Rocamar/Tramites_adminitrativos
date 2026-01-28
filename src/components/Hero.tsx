@@ -6,11 +6,11 @@ const Hero = () => {
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0 gradient-hero opacity-95" />
-      
+
       {/* Decorative shapes */}
       <div className="absolute top-20 right-20 w-64 h-64 rounded-full bg-terracotta/20 blur-3xl animate-float" />
       <div className="absolute bottom-20 left-20 w-96 h-96 rounded-full bg-olive-light/20 blur-3xl animate-float" style={{ animationDelay: '2s' }} />
-      
+
       <div className="container relative z-10 px-4 py-20 md:py-32">
         <div className="max-w-3xl mx-auto text-center">
           {/* Badge */}
@@ -21,13 +21,13 @@ const Hero = () => {
 
           {/* Headline */}
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-primary-foreground mb-6 animate-fade-up" style={{ animationDelay: '0.1s' }}>
-            Gestiona tus trámites con la Administración
-            <span className="block mt-2 text-terracotta-light">de forma sencilla</span>
+            Domina la burocracia
+            <span className="block mt-2 text-terracotta-light">sin perder los nervios</span>
           </h1>
 
           {/* Subtitle */}
           <p className="text-lg md:text-xl text-primary-foreground/85 mb-10 max-w-2xl mx-auto animate-fade-up" style={{ animationDelay: '0.2s' }}>
-            Encuentra cualquier administración pública española, accede a sus trámites online y recibe ayuda paso a paso con nuestro asistente virtual.
+            Gestionar el DNI, la Vida Laboral o tu Empadronamiento ya no tiene por qué ser un laberinto. Te guiamos directo al punto exacto, paso a paso.
           </p>
 
           {/* CTA Buttons */}
@@ -37,9 +37,9 @@ const Hero = () => {
               Buscar trámites
               <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
             </Button>
-            <Button 
-              variant="outline" 
-              size="xl" 
+            <Button
+              variant="outline"
+              size="xl"
               className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
             >
               <MessageCircle className="mr-2 h-5 w-5" />
