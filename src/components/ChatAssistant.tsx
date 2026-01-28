@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MessageCircle, Send, X, Bot, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,14 +28,23 @@ const ChatAssistant = () => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const handleSendRef = useRef<any>(null);
+
+  useEffect(() => {
+    handleSendRef.current = handleSend;
+  });
 
   useEffect(() => {
     const handleCustomSearch = (event: any) => {
+      console.log("ChatAssistant: Event caught", event.detail);
       const query = event.detail;
       setIsOpen(true);
-      handleSend(query);
+      if (handleSendRef.current) {
+        handleSendRef.current(query);
+      }
     };
 
+    console.log("ChatAssistant: Event listener added");
     window.addEventListener('open-chat-with-query', handleCustomSearch as EventListener);
     return () => window.removeEventListener('open-chat-with-query', handleCustomSearch as EventListener);
   }, []);
