@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, Send, X, Bot, User } from "lucide-react";
+import { MessageCircle, Send, X, Bot, User, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -10,8 +10,8 @@ interface Message {
 }
 
 const MessageContent = ({ text }: { text: string }) => {
-  // Simple regex to find markdown links [text](url)
-  const parts = text.split(/(\[.*?\]\(.*?\))/g);
+  // Robust regex to find markdown links [text](url) or [text] (url)
+  const parts = text.split(/(\[.*?\]\s*\(.*?\))/g);
 
   return (
     <>
@@ -27,7 +27,7 @@ const MessageContent = ({ text }: { text: string }) => {
               className="inline-flex items-center text-accent-foreground underline hover:text-accent-foreground/80 font-medium break-all"
             >
               {linkMatch[1]}
-              <Bot className="ml-1 h-3 w-3 inline" /> {/* Using Bot as a proxy for external link icon since it's already imported, or I can import ExternalLink */}
+              <ExternalLink className="ml-1 h-3 w-3 inline" />
             </a>
           );
         }
@@ -129,20 +129,20 @@ const ChatAssistant = () => {
       responseText = "👷 Vida Laboral: El método más rápido es vía SMS en el portal Import@ss. Recibes un código en el móvil y descargas el PDF al momento. ¿Te paso el enlace?";
       nextQuestionType = "vida_laboral_link";
     } else if (lowers.includes("madrid")) {
-      responseText = "🏢 He encontrado el portal oficial de la **Comunidad de Madrid**. ¿Quieres acceder a su catálogo de trámites directos?";
-      nextQuestionType = "madrid_link";
+      responseText = "🏢 Aquí tienes el portal oficial de la **Comunidad de Madrid**: [Sede Comunidad de Madrid](https://sede.comunidad.madrid). ¿Buscas alguna consejería específica?";
+      nextQuestionType = null;
     } else if (lowers.includes("catalunya") || lowers.includes("cataluña")) {
-      responseText = "🏢 He encontrado el portal de trámites de la **Generalitat de Catalunya**. ¿Te paso el enlace oficial?";
-      nextQuestionType = "catalunya_link";
+      responseText = "🏢 Aquí tienes el portal de trámites oficial de la **Generalitat de Catalunya**: [Tràmits Gencat](https://tramits.gencat.cat). ¿Necesitas ayuda para buscar un tema concreto?";
+      nextQuestionType = null;
     } else if (lowers.includes("andalucía") || lowers.includes("andalucia")) {
-      responseText = "🏢 He encontrado la sede electrónica de la **Junta de Andalucía**. ¿Quieres que te lleve allí?";
-      nextQuestionType = "andalucia_link";
+      responseText = "🏢 Aquí tienes la sede electrónica oficial de la **Junta de Andalucía**: [Sede Junta de Andalucía](https://www.juntadeandalucia.es/servicios.html). ¿Buscas algún trámite de ciudadanos?";
+      nextQuestionType = null;
     } else if (lowers.includes("valenciana") || lowers.includes("valencia")) {
-      responseText = "🏢 He encontrado el portal oficial de la **Generalitat Valenciana (GVA)**. ¿Quieres que te envíe el enlace directo a sus trámites?";
-      nextQuestionType = "valencia_link";
+      responseText = "🏢 Aquí tienes el acceso directo a la **Generalitat Valenciana (GVA)**: [Sede Electrónica GVA](https://sede.gva.es). ¿Quieres que te ayude a encontrar un trámite específico allí?";
+      nextQuestionType = null;
     } else if (lowers.includes("vasco") || lowers.includes("euskadi")) {
-      responseText = "🏢 He encontrado la sede electrónica del **Gobierno Vasco (Euskadi)**. ¿Quieres el enlace oficial?";
-      nextQuestionType = "euskadi_link";
+      responseText = "🏢 Aquí tienes la sede electrónica oficial del **Gobierno Vasco (Euskadi)**: [Sede Electrónica Euskadi](https://www.euskadi.eus/sedeelectronica). ¿Buscas información sobre la BakQ o algún trámite?";
+      nextQuestionType = null;
     } else if (lowers.includes("no es mi ayuntamiento") || lowers.includes("otro ayuntamiento")) {
       responseText = "Vaya, parece que te he dado una información genérica. ¿Me podrías decir de qué localidad eres para buscarte el enlace exacto de tu ayuntamiento?";
       nextQuestionType = "ask_location";
