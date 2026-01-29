@@ -24,7 +24,11 @@ const MessageContent = ({ text }: { text: string }) => {
               href={linkMatch[2]}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center text-accent-foreground underline hover:text-accent-foreground/80 font-medium break-all"
+              className="inline-flex items-center text-primary underline hover:text-primary/80 font-bold break-all cursor-pointer relative z-10"
+              onClick={(e) => {
+                console.log("Link clicked:", linkMatch[2]);
+                // Ensure the click propagates correctly or is handled
+              }}
             >
               {linkMatch[1]}
               <ExternalLink className="ml-1 h-3 w-3 inline" />

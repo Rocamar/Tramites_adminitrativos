@@ -9,6 +9,8 @@ import NotFound from "./pages/NotFound";
 // Main entry point for the application
 const queryClient = new QueryClient();
 
+console.log("🚀 Tramites Administrativos v1.4 - Live and Updated");
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
