@@ -9,6 +9,34 @@ interface Message {
   isBot: boolean;
 }
 
+const MessageContent = ({ text }: { text: string }) => {
+  // Simple regex to find markdown links [text](url)
+  const parts = text.split(/(\[.*?\]\(.*?\))/g);
+
+  return (
+    <>
+      {parts.map((part, i) => {
+        const linkMatch = part.match(/\[(.*?)\]\((.*?)\)/);
+        if (linkMatch) {
+          return (
+            <a
+              key={i}
+              href={linkMatch[2]}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-accent-foreground underline hover:text-accent-foreground/80 font-medium break-all"
+            >
+              {linkMatch[1]}
+              <Bot className="ml-1 h-3 w-3 inline" /> {/* Using Bot as a proxy for external link icon since it's already imported, or I can import ExternalLink */}
+            </a>
+          );
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </>
+  );
+};
+
 const initialMessages: Message[] = [
   {
     id: 1,
@@ -57,8 +85,12 @@ const ChatAssistant = () => {
     const lowers = userText.toLowerCase();
     let nextQuestionType: string | null = "generic_link";
 
+    // Improved confirmation check (avoiding collisions with "valenciana")
+    const isConfirmation = lowers === "si" || lowers === "sí" ||
+      /\b(vale|claro|por favor|ok|confirmar)\b/.test(lowers);
+
     // Handle confirmations if a question was recently asked
-    if (lastQuestionType && (lowers === "si" || lowers === "sí" || lowers.includes("claro") || lowers.includes("por favor") || lowers.includes("vale"))) {
+    if (lastQuestionType && isConfirmation) {
       if (lastQuestionType === "generic_link") {
         responseText = "¡Perfecto! Aquí tienes el acceso directo al portal oficial: [Portal de Trámites](https://www.sede.gob.es). ¿Necesitas ayuda con algún paso específico de la solicitud?";
         nextQuestionType = "needs_steps";
@@ -71,19 +103,49 @@ const ChatAssistant = () => {
       } else if (lastQuestionType === "vida_laboral_link") {
         responseText = "Accede aquí directamente con tu móvil: [Import@ss - Vida Laboral](https://portal.seg-social.gob.es). Recibirás el SMS al instante.";
         nextQuestionType = null;
+      } else if (lastQuestionType === "madrid_link") {
+        responseText = "Aquí tienes el catálogo completo: [Sede Comunidad de Madrid](https://sede.comunidad.madrid). ¿Buscas alguna consejería específica?";
+        nextQuestionType = null;
+      } else if (lastQuestionType === "catalunya_link") {
+        responseText = "Aquí tienes el enlace oficial: [Tràmits Gencat](https://tramits.gencat.cat). Puedes buscar por temas o departamentos.";
+        nextQuestionType = null;
+      } else if (lastQuestionType === "andalucia_link") {
+        responseText = "Accede desde aquí: [Sede Junta de Andalucía](https://www.juntadeandalucia.es/servicios.html). Tienen un buscador muy eficiente.";
+        nextQuestionType = null;
+      } else if (lastQuestionType === "valencia_link") {
+        responseText = "Perfecto, aquí tienes el acceso: [Sede Electrónica GVA](https://sede.gva.es). ¿Necesitas ayuda para identificar tu trámite?";
+        nextQuestionType = null;
+      } else if (lastQuestionType === "euskadi_link") {
+        responseText = "Aquí lo tienes: [Sede Electrónica Euskadi](https://www.euskadi.eus/sedeelectronica). ¿Quieres saber cómo usar la BakQ?";
+        nextQuestionType = null;
       }
     } else if (lowers.includes("dni")) {
       responseText = "📍 Renovar DNI: Necesitas cita previa en citapreviadnie.es. Debes llevar: Foto reciente, el DNI antiguo y 12€ (en efectivo o pago telemático). ¿Quieres el link de cita?";
       nextQuestionType = "dni_link";
-    } else if (lowers.includes("padron") || lowers.includes("empadronamiento")) {
+    } else if (lowers.includes("padron") || lowers.includes("empadronamiento") || lowers.includes("ayuntamiento")) {
       responseText = "🏠 Padrón: Ve a la web de tu Ayuntamiento. Si tienes Cl@ve o Certificado Digital, puedes descargar el 'Volante' al instante. ¿Sabes si tu Ayuntamiento tiene sede online?";
       nextQuestionType = "padron_query";
     } else if (lowers.includes("vida laboral")) {
       responseText = "👷 Vida Laboral: El método más rápido es vía SMS en el portal Import@ss. Recibes un código en el móvil y descargas el PDF al momento. ¿Te paso el enlace?";
       nextQuestionType = "vida_laboral_link";
-    } else if (lowers.includes("madrid") || lowers.includes("catalunya") || lowers.includes("andalucía") || lowers.includes("valenciana") || lowers.includes("vasco")) {
-      responseText = `🏢 He encontrado acceso directo a los trámites de la administración que buscas. ¿Qué gestión en concreto necesitas realizar allí?`;
-      nextQuestionType = "specific_admin_task";
+    } else if (lowers.includes("madrid")) {
+      responseText = "🏢 He encontrado el portal oficial de la **Comunidad de Madrid**. ¿Quieres acceder a su catálogo de trámites directos?";
+      nextQuestionType = "madrid_link";
+    } else if (lowers.includes("catalunya") || lowers.includes("cataluña")) {
+      responseText = "🏢 He encontrado el portal de trámites de la **Generalitat de Catalunya**. ¿Te paso el enlace oficial?";
+      nextQuestionType = "catalunya_link";
+    } else if (lowers.includes("andalucía") || lowers.includes("andalucia")) {
+      responseText = "🏢 He encontrado la sede electrónica de la **Junta de Andalucía**. ¿Quieres que te lleve allí?";
+      nextQuestionType = "andalucia_link";
+    } else if (lowers.includes("valenciana") || lowers.includes("valencia")) {
+      responseText = "🏢 He encontrado el portal oficial de la **Generalitat Valenciana (GVA)**. ¿Quieres que te envíe el enlace directo a sus trámites?";
+      nextQuestionType = "valencia_link";
+    } else if (lowers.includes("vasco") || lowers.includes("euskadi")) {
+      responseText = "🏢 He encontrado la sede electrónica del **Gobierno Vasco (Euskadi)**. ¿Quieres el enlace oficial?";
+      nextQuestionType = "euskadi_link";
+    } else if (lowers.includes("no es mi ayuntamiento") || lowers.includes("otro ayuntamiento")) {
+      responseText = "Vaya, parece que te he dado una información genérica. ¿Me podrías decir de qué localidad eres para buscarte el enlace exacto de tu ayuntamiento?";
+      nextQuestionType = "ask_location";
     } else if (lowers === "no" || lowers.includes("gracias") || lowers.includes("nada más")) {
       responseText = "¡De nada! Si te surge cualquier otra duda con la burocracia, aquí estaré. ¡Que tengas un buen día!";
       nextQuestionType = null;
@@ -185,7 +247,7 @@ const ChatAssistant = () => {
                   : "bg-primary text-primary-foreground rounded-tr-none"
                   }`}
               >
-                {message.text}
+                <MessageContent text={message.text} />
               </div>
             </div>
           ))}
