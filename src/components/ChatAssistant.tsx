@@ -28,6 +28,7 @@ const ChatAssistant = () => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [lastQuestionType, setLastQuestionType] = useState<string | null>(null);
   const handleSendRef = useRef<any>(null);
 
   useEffect(() => {
@@ -36,7 +37,6 @@ const ChatAssistant = () => {
 
   useEffect(() => {
     const handleCustomSearch = (event: any) => {
-      console.log("ChatAssistant: Event caught", event.detail);
       const query = event.detail;
       setIsOpen(true);
       if (handleSendRef.current) {
@@ -44,7 +44,6 @@ const ChatAssistant = () => {
       }
     };
 
-    console.log("ChatAssistant: Event listener added");
     window.addEventListener('open-chat-with-query', handleCustomSearch as EventListener);
     return () => window.removeEventListener('open-chat-with-query', handleCustomSearch as EventListener);
   }, []);
@@ -56,14 +55,38 @@ const ChatAssistant = () => {
     let responseText = "Buscando información oficial... Encontrado. Para completar ese trámite necesitas entrar en la sede electrónica oficial. ¿Te gustaría que te envíe el enlace directo?";
 
     const lowers = userText.toLowerCase();
-    if (lowers.includes("dni")) {
+    let nextQuestionType: string | null = "generic_link";
+
+    // Handle confirmations if a question was recently asked
+    if (lastQuestionType && (lowers === "si" || lowers === "sí" || lowers.includes("claro") || lowers.includes("por favor") || lowers.includes("vale"))) {
+      if (lastQuestionType === "generic_link") {
+        responseText = "¡Perfecto! Aquí tienes el acceso directo al portal oficial: [Portal de Trámites](https://www.sede.gob.es). ¿Necesitas ayuda con algún paso específico de la solicitud?";
+        nextQuestionType = "needs_steps";
+      } else if (lastQuestionType === "dni_link") {
+        responseText = "Aquí tienes el enlace oficial para la cita: [Cita Previa DNI](https://www.citapreviadnie.es). Recuerda tener tu DNI actual a mano para los datos.";
+        nextQuestionType = null;
+      } else if (lastQuestionType === "padron_query") {
+        responseText = "Entendido. La mayoría de ayuntamientos usan el sistema Cl@ve. ¿Tienes ya tu Certificado Digital o Cl@ve activa?";
+        nextQuestionType = "has_clave";
+      } else if (lastQuestionType === "vida_laboral_link") {
+        responseText = "Accede aquí directamente con tu móvil: [Import@ss - Vida Laboral](https://portal.seg-social.gob.es). Recibirás el SMS al instante.";
+        nextQuestionType = null;
+      }
+    } else if (lowers.includes("dni")) {
       responseText = "📍 Renovar DNI: Necesitas cita previa en citapreviadnie.es. Debes llevar: Foto reciente, el DNI antiguo y 12€ (en efectivo o pago telemático). ¿Quieres el link de cita?";
+      nextQuestionType = "dni_link";
     } else if (lowers.includes("padron") || lowers.includes("empadronamiento")) {
       responseText = "🏠 Padrón: Ve a la web de tu Ayuntamiento. Si tienes Cl@ve o Certificado Digital, puedes descargar el 'Volante' al instante. ¿Sabes si tu Ayuntamiento tiene sede online?";
+      nextQuestionType = "padron_query";
     } else if (lowers.includes("vida laboral")) {
       responseText = "👷 Vida Laboral: El método más rápido es vía SMS en el portal Import@ss. Recibes un código en el móvil y descargas el PDF al momento. ¿Te paso el enlace?";
+      nextQuestionType = "vida_laboral_link";
     } else if (lowers.includes("madrid") || lowers.includes("catalunya") || lowers.includes("andalucía") || lowers.includes("valenciana") || lowers.includes("vasco")) {
       responseText = `🏢 He encontrado acceso directo a los trámites de la administración que buscas. ¿Qué gestión en concreto necesitas realizar allí?`;
+      nextQuestionType = "specific_admin_task";
+    } else if (lowers === "no" || lowers.includes("gracias") || lowers.includes("nada más")) {
+      responseText = "¡De nada! Si te surge cualquier otra duda con la burocracia, aquí estaré. ¡Que tengas un buen día!";
+      nextQuestionType = null;
     }
 
     setTimeout(() => {
@@ -74,6 +97,7 @@ const ChatAssistant = () => {
       };
       setMessages((prev) => [...prev, botResponse]);
       setIsTyping(false);
+      setLastQuestionType(nextQuestionType);
     }, 1200);
   };
 

@@ -47,10 +47,8 @@ const Hero = () => {
               size="xl"
               className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
               onClick={() => {
-                // We use a custom event or reach into the ChatAssistant state if possible
-                // For now, let's trigger a click on the floating button which is in the DOM
-                const chatBtn = document.querySelector('button[aria-label="Abrir asistente"]') as HTMLButtonElement;
-                chatBtn?.click();
+                const event = new CustomEvent('open-chat-with-query', { detail: '¿Cómo funciona esto?' });
+                window.dispatchEvent(event);
               }}
             >
               <MessageCircle className="mr-2 h-5 w-5" />
@@ -78,7 +76,7 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </section>
+    </section >
   );
 };
 
