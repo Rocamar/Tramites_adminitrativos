@@ -16,7 +16,7 @@ const Hero = () => {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 mb-8 animate-fade-up">
             <span className="w-2 h-2 rounded-full bg-terracotta animate-pulse" />
-            <span className="text-sm font-medium text-primary-foreground">Tu guía para trámites v1.4</span>
+            <span className="text-sm font-medium text-primary-foreground">Tu guía para trámites v1.5</span>
           </div>
 
           {/* Headline */}

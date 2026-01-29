@@ -1,4 +1,5 @@
-import { Building2, MapPin, ExternalLink } from "lucide-react";
+import { useState } from "react";
+import { Building2, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const administrations = [
@@ -38,9 +39,49 @@ const administrations = [
     type: "Autonómica",
     procedures: "+120",
   },
+  {
+    name: "Xunta de Galicia",
+    description: "Trámites de salud (Sergas), educación y servicios sociales.",
+    type: "Autonómica",
+    procedures: "+110",
+  },
+  {
+    name: "Canarias (Gobierno)",
+    description: "Turismo, empleo, salud y servicios para residentes.",
+    type: "Autonómica",
+    procedures: "+105",
+  },
+  {
+    name: "Castilla y León",
+    description: "Sacyl, educación, medio ambiente y servicios rurales.",
+    type: "Autonómica",
+    procedures: "+115",
+  },
+  {
+    name: "Región de Murcia",
+    description: "Gestiones de vivienda, empleo y administración local.",
+    type: "Autonómica",
+    procedures: "+95",
+  },
+  {
+    name: "Gobierno de Aragón",
+    description: "Salud, desarrollo rural y trámites ciudadanos.",
+    type: "Autonómica",
+    procedures: "+90",
+  },
+  {
+    name: "Castilla-La Mancha",
+    description: "Sescam, agricultura, empleo y bienestar social.",
+    type: "Autonómica",
+    procedures: "+100",
+  },
 ];
 
 const AdministrationsSection = () => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const displayedAdmins = isExpanded ? administrations : administrations.slice(0, 6);
+
   return (
     <section className="py-20 bg-background">
       <div className="container px-4">
@@ -58,11 +99,12 @@ const AdministrationsSection = () => {
         </div>
 
         {/* Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {administrations.map((admin, index) => (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto animate-fade-in">
+          {displayedAdmins.map((admin, index) => (
             <div
               key={index}
-              className="group bg-card rounded-2xl p-6 shadow-soft hover:shadow-medium transition-all duration-300 border border-border hover:border-primary/20"
+              className="group bg-card rounded-2xl p-6 shadow-soft hover:shadow-medium transition-all duration-300 border border-border hover:border-primary/20 animate-fade-up"
+              style={{ animationDelay: `${index * 0.05}s` }}
             >
               {/* Header */}
               <div className="flex items-start justify-between mb-4">
@@ -107,20 +149,25 @@ const AdministrationsSection = () => {
           ))}
         </div>
 
-        {/* View all button */}
+        {/* Toggle button */}
         <div className="text-center mt-12">
           <Button
             variant="outline"
             size="lg"
-            onClick={() => {
-              const element = document.getElementById('search-section');
-              if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-              }
-            }}
+            className="min-w-[240px]"
+            onClick={() => setIsExpanded(!isExpanded)}
           >
-            <MapPin className="mr-2 h-4 w-4" />
-            Ver todas las administraciones
+            {isExpanded ? (
+              <>
+                <ChevronUp className="mr-2 h-4 w-4" />
+                Ver menos administraciones
+              </>
+            ) : (
+              <>
+                <ChevronDown className="mr-2 h-4 w-4" />
+                Ver todas las administraciones
+              </>
+            )}
           </Button>
         </div>
       </div>
