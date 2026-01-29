@@ -70,8 +70,8 @@ const AdministrationsSection = () => {
                   <Building2 className="h-6 w-6 text-primary" />
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-medium ${admin.type === "Estatal"
-                    ? "bg-terracotta/10 text-terracotta"
-                    : "bg-olive-light/20 text-olive"
+                  ? "bg-terracotta/10 text-terracotta"
+                  : "bg-olive-light/20 text-olive"
                   }`}>
                   {admin.type}
                 </span>
@@ -112,7 +112,12 @@ const AdministrationsSection = () => {
           <Button
             variant="outline"
             size="lg"
-            onClick={() => document.getElementById('search-section')?.scrollIntoView({ behavior: 'smooth' })}
+            onClick={() => {
+              const element = document.getElementById('search-section');
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
           >
             <MapPin className="mr-2 h-4 w-4" />
             Ver todas las administraciones

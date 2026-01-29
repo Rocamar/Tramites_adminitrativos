@@ -16,7 +16,7 @@ const MessageContent = ({ text }: { text: string }) => {
   return (
     <>
       {parts.map((part, i) => {
-        const linkMatch = part.match(/\[(.*?)\]\((.*?)\)/);
+        const linkMatch = part.match(/\[(.*?)\]\s*\((.*?)\)/);
         if (linkMatch) {
           return (
             <a
