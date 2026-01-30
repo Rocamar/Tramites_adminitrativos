@@ -96,11 +96,20 @@ const ChatAssistant = () => {
     let effectiveRegion = regionKey;
     let effectiveTopic = topicKey;
 
-    if (lastQuestionType?.startsWith("waiting_for_region_") && !effectiveRegion) {
-      // We were waiting for a region, try to see if the user just answered with a region name
-      effectiveRegion = identifyRegion(userText);
+    if (lastQuestionType?.startsWith("waiting_for_region_")) {
+      // Context: We were waiting for a region for a specific topic
+      const pendingTopic = lastQuestionType.replace("waiting_for_region_", "") as any;
+
+      // If the user provided a region now, we use it. 
+      // If they didn't provide a distinguishable region but said something else, we might still want to know.
       if (effectiveRegion) {
-        effectiveTopic = lastQuestionType.replace("waiting_for_region_", "") as any;
+        effectiveTopic = pendingTopic;
+      }
+    } else if (lastQuestionType?.startsWith("waiting_for_topic_")) {
+      // Context: We were waiting for a topic for a specific region
+      const pendingRegion = lastQuestionType.replace("waiting_for_topic_", "");
+      if (effectiveTopic) {
+        effectiveRegion = pendingRegion;
       }
     }
 
@@ -109,21 +118,23 @@ const ChatAssistant = () => {
       const regionData = knowledgeBase[effectiveRegion];
       const link = regionData.links[effectiveTopic];
 
-      if (link) {
-        const topicName = effectiveTopic === 'discapacidad' ? 'Discapacidad' :
-          effectiveTopic === 'desempleo' ? 'Desempleo/Paro' :
-            effectiveTopic === 'familia' ? 'Familia' : 'Salud';
+      const topicName = effectiveTopic === 'discapacidad' ? 'Discapacidad' :
+        effectiveTopic === 'desempleo' ? 'Desempleo/Paro' :
+          effectiveTopic === 'familia' ? 'Familia' : 'Salud';
 
-        responseText = `✅ Aquí tienes el enlace directo para **${topicName}** en **${regionData.name}**:\n\n[Acceder al Tramite](${link})\n\n¿Necesitas algo más?`;
+      const searchUrl = regionData.searchTemplate.replace("{query}", topicName);
+
+      if (link) {
+        responseText = `✅ Aquí tienes los trámites para **${topicName}** en **${regionData.name}**:\n\n1. [Enlace Directo Recomendado](${link})\n2. [🔍 Ver todos los resultados de búsqueda](${searchUrl})\n\n¿Necesitas algo más?`;
         nextQuestionType = null;
       } else {
-        responseText = `He identificado que buscas sobre **${effectiveTopic}** en **${regionData.name}**, pero no tengo el enlace directo exacto. \nPuedes buscarlo aquí: [Portal ${regionData.name}](${regionData.links.generic})`;
+        responseText = `He identificado que buscas sobre **${effectiveTopic}** en **${regionData.name}**.\n\nAquí tienes todos los resultados de la sede oficial:\n[🔍 Ver trámites de ${topicName}](${searchUrl})`;
         nextQuestionType = null;
       }
     } else if (effectiveRegion) {
       // Region found, but no topic
       const regionData = knowledgeBase[effectiveRegion];
-      responseText = `🏢 Has mencionado **${regionData.name}**. Aquí tienes su sede electrónica: [Sede Oficial](${regionData.links.generic}).\n\n¿Buscas algo concreto como *discapacidad*, *desempleo* o *salud*?`;
+      responseText = `🏢 Has mencionado **${regionData.name}**. ¿Qué trámite buscas? (Ej: "Desempleo", "Discapacidad", "Salud"...)`;
       nextQuestionType = "waiting_for_topic_" + effectiveRegion;
     } else if (effectiveTopic) {
       // Topic found, but no region
@@ -150,9 +161,7 @@ const ChatAssistant = () => {
           responseText = "Accede aquí directamente con tu móvil: [Import@ss - Vida Laboral](https://portal.seg-social.gob.es).";
           nextQuestionType = null;
         } else if (lastQuestionType?.startsWith("waiting_for_topic_")) {
-          // User confirmed something but we were waiting for a topic? Just reset.
-          responseText = "¿En qué puedo ayudarte? Dime el trámite y la comunidad autónoma.";
-          nextQuestionType = null;
+          responseText = "¿Qué trámite necesitas buscar?";
         }
       } else if (lowers.includes("dni")) {
         responseText = "📍 Renovar DNI: Necesitas cita previa en citapreviadnie.es. ¿Quieres el link de cita?";
@@ -168,7 +177,7 @@ const ChatAssistant = () => {
         nextQuestionType = null;
       } else {
         // Generic fallback
-        responseText = "No estoy seguro de haberte entendido. Prueba diciendo algo como 'Discapacidad en Andalucia' o 'Desempleo en Madrid'.";
+        responseText = "No estoy seguro de haberte entendido. Prueba diciendo algo como 'Desempleo en Valencia' o simplemente dime qué trámite buscas.";
         nextQuestionType = null;
       }
     }
