@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { MessageCircle, Send, X, Bot, User, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { knowledgeBase, identifyRegion, identifyTopic } from "@/data/knowledgeBase";
 
 interface Message {
   id: number;
@@ -83,76 +84,93 @@ const ChatAssistant = () => {
   const simulateBotResponse = (userText: string) => {
     setIsTyping(true);
 
-    // Simulate specialized responses based on common keywords
-    let responseText = "Buscando información oficial... Encontrado. Para completar ese trámite necesitas entrar en la sede electrónica oficial. ¿Te gustaría que te envíe el enlace directo?";
-
-    const lowers = userText.toLowerCase();
+    let responseText = "Buscando información oficial...";
     let nextQuestionType: string | null = "generic_link";
+    const lowers = userText.toLowerCase();
 
-    // Improved confirmation check (avoiding collisions with "valenciana")
-    const isConfirmation = lowers === "si" || lowers === "sí" ||
-      /\b(vale|claro|por favor|ok|confirmar)\b/.test(lowers);
+    // 1. Identify Topic and Region from current input
+    const regionKey = identifyRegion(userText);
+    const topicKey = identifyTopic(userText);
 
-    // Handle confirmations if a question was recently asked
-    if (lastQuestionType && isConfirmation) {
-      if (lastQuestionType === "generic_link") {
-        responseText = "¡Perfecto! Aquí tienes el acceso directo al portal oficial: [Portal de Trámites](https://www.sede.gob.es). ¿Necesitas ayuda con algún paso específico de la solicitud?";
-        nextQuestionType = "needs_steps";
-      } else if (lastQuestionType === "dni_link") {
-        responseText = "Aquí tienes el enlace oficial para la cita: [Cita Previa DNI](https://www.citapreviadnie.es). Recuerda tener tu DNI actual a mano para los datos.";
+    // 2. Check context from previous turn
+    let effectiveRegion = regionKey;
+    let effectiveTopic = topicKey;
+
+    if (lastQuestionType?.startsWith("waiting_for_region_") && !effectiveRegion) {
+      // We were waiting for a region, try to see if the user just answered with a region name
+      effectiveRegion = identifyRegion(userText);
+      if (effectiveRegion) {
+        effectiveTopic = lastQuestionType.replace("waiting_for_region_", "") as any;
+      }
+    }
+
+    // 3. Logic Matching
+    if (effectiveRegion && effectiveTopic) {
+      const regionData = knowledgeBase[effectiveRegion];
+      const link = regionData.links[effectiveTopic];
+
+      if (link) {
+        const topicName = effectiveTopic === 'discapacidad' ? 'Discapacidad' :
+          effectiveTopic === 'desempleo' ? 'Desempleo/Paro' :
+            effectiveTopic === 'familia' ? 'Familia' : 'Salud';
+
+        responseText = `✅ Aquí tienes el enlace directo para **${topicName}** en **${regionData.name}**:\n\n[Acceder al Tramite](${link})\n\n¿Necesitas algo más?`;
         nextQuestionType = null;
-      } else if (lastQuestionType === "padron_query") {
-        responseText = "Entendido. La mayoría de ayuntamientos usan el sistema Cl@ve. ¿Tienes ya tu Certificado Digital o Cl@ve activa?";
-        nextQuestionType = "has_clave";
-      } else if (lastQuestionType === "vida_laboral_link") {
-        responseText = "Accede aquí directamente con tu móvil: [Import@ss - Vida Laboral](https://portal.seg-social.gob.es). Recibirás el SMS al instante.";
-        nextQuestionType = null;
-      } else if (lastQuestionType === "madrid_link") {
-        responseText = "Aquí tienes el catálogo completo: [Sede Comunidad de Madrid](https://sede.comunidad.madrid). ¿Buscas alguna consejería específica?";
-        nextQuestionType = null;
-      } else if (lastQuestionType === "catalunya_link") {
-        responseText = "Aquí tienes el enlace oficial: [Tràmits Gencat](https://tramits.gencat.cat). Puedes buscar por temas o departamentos.";
-        nextQuestionType = null;
-      } else if (lastQuestionType === "andalucia_link") {
-        responseText = "Accede desde aquí: [Sede Junta de Andalucía](https://www.juntadeandalucia.es/servicios.html). Tienen un buscador muy eficiente.";
-        nextQuestionType = null;
-      } else if (lastQuestionType === "valencia_link") {
-        responseText = "Perfecto, aquí tienes el acceso: [Sede Electrónica GVA](https://sede.gva.es). ¿Necesitas ayuda para identificar tu trámite?";
-        nextQuestionType = null;
-      } else if (lastQuestionType === "euskadi_link") {
-        responseText = "Aquí lo tienes: [Sede Electrónica Euskadi](https://www.euskadi.eus/sedeelectronica). ¿Quieres saber cómo usar la BakQ?";
+      } else {
+        responseText = `He identificado que buscas sobre **${effectiveTopic}** en **${regionData.name}**, pero no tengo el enlace directo exacto. \nPuedes buscarlo aquí: [Portal ${regionData.name}](${regionData.links.generic})`;
         nextQuestionType = null;
       }
-    } else if (lowers.includes("dni")) {
-      responseText = "📍 Renovar DNI: Necesitas cita previa en citapreviadnie.es. Debes llevar: Foto reciente, el DNI antiguo y 12€ (en efectivo o pago telemático). ¿Quieres el link de cita?";
-      nextQuestionType = "dni_link";
-    } else if (lowers.includes("padron") || lowers.includes("empadronamiento") || lowers.includes("ayuntamiento")) {
-      responseText = "🏠 Padrón: Ve a la web de tu Ayuntamiento. Si tienes Cl@ve o Certificado Digital, puedes descargar el 'Volante' al instante. ¿Sabes si tu Ayuntamiento tiene sede online?";
-      nextQuestionType = "padron_query";
-    } else if (lowers.includes("vida laboral")) {
-      responseText = "👷 Vida Laboral: El método más rápido es vía SMS en el portal Import@ss. Recibes un código en el móvil y descargas el PDF al momento. ¿Te paso el enlace?";
-      nextQuestionType = "vida_laboral_link";
-    } else if (lowers.includes("madrid")) {
-      responseText = "🏢 Aquí tienes el portal oficial de la **Comunidad de Madrid**: [Sede Comunidad de Madrid](https://sede.comunidad.madrid). ¿Buscas alguna consejería específica?";
-      nextQuestionType = null;
-    } else if (lowers.includes("catalunya") || lowers.includes("cataluña")) {
-      responseText = "🏢 Aquí tienes el portal de trámites oficial de la **Generalitat de Catalunya**: [Tràmits Gencat](https://tramits.gencat.cat). ¿Necesitas ayuda para buscar un tema concreto?";
-      nextQuestionType = null;
-    } else if (lowers.includes("andalucía") || lowers.includes("andalucia")) {
-      responseText = "🏢 Aquí tienes la sede electrónica oficial de la **Junta de Andalucía**: [Sede Junta de Andalucía](https://www.juntadeandalucia.es/servicios.html). ¿Buscas algún trámite de ciudadanos?";
-      nextQuestionType = null;
-    } else if (lowers.includes("valenciana") || lowers.includes("valencia")) {
-      responseText = "🏢 Aquí tienes el acceso directo a la **Generalitat Valenciana (GVA)**: [Sede Electrónica GVA](https://sede.gva.es). ¿Quieres que te ayude a encontrar un trámite específico allí?";
-      nextQuestionType = null;
-    } else if (lowers.includes("vasco") || lowers.includes("euskadi")) {
-      responseText = "🏢 Aquí tienes la sede electrónica oficial del **Gobierno Vasco (Euskadi)**: [Sede Electrónica Euskadi](https://www.euskadi.eus/sedeelectronica). ¿Buscas información sobre la BakQ o algún trámite?";
-      nextQuestionType = null;
-    } else if (lowers.includes("no es mi ayuntamiento") || lowers.includes("otro ayuntamiento")) {
-      responseText = "Vaya, parece que te he dado una información genérica. ¿Me podrías decir de qué localidad eres para buscarte el enlace exacto de tu ayuntamiento?";
-      nextQuestionType = "ask_location";
-    } else if (lowers === "no" || lowers.includes("gracias") || lowers.includes("nada más")) {
-      responseText = "¡De nada! Si te surge cualquier otra duda con la burocracia, aquí estaré. ¡Que tengas un buen día!";
-      nextQuestionType = null;
+    } else if (effectiveRegion) {
+      // Region found, but no topic
+      const regionData = knowledgeBase[effectiveRegion];
+      responseText = `🏢 Has mencionado **${regionData.name}**. Aquí tienes su sede electrónica: [Sede Oficial](${regionData.links.generic}).\n\n¿Buscas algo concreto como *discapacidad*, *desempleo* o *salud*?`;
+      nextQuestionType = "waiting_for_topic_" + effectiveRegion;
+    } else if (effectiveTopic) {
+      // Topic found, but no region
+      const topicName = effectiveTopic === 'discapacidad' ? 'Discapacidad' :
+        effectiveTopic === 'desempleo' ? 'Desempleo/Paro' : 'este tema';
+      responseText = `Entiendo que buscas información sobre **${topicName}**. 🌍 ¿Para qué Comunidad Autónoma es? (Ej: Andalucía, Madrid, Galicia...)`;
+      nextQuestionType = "waiting_for_region_" + effectiveTopic;
+    } else {
+      // Existing fallback logic
+      const isConfirmation = lowers === "si" || lowers === "sí" ||
+        /\b(vale|claro|por favor|ok|confirmar)\b/.test(lowers);
+
+      if (lastQuestionType && isConfirmation) {
+        if (lastQuestionType === "generic_link") {
+          responseText = "¡Perfecto! Aquí tienes el acceso directo al portal oficial: [Portal de Trámites](https://www.sede.gob.es).";
+          nextQuestionType = null;
+        } else if (lastQuestionType === "dni_link") {
+          responseText = "Aquí tienes el enlace oficial para la cita: [Cita Previa DNI](https://www.citapreviadnie.es).";
+          nextQuestionType = null;
+        } else if (lastQuestionType === "padron_query") {
+          responseText = "Entendido. La mayoría de ayuntamientos usan el sistema Cl@ve. ¿Tienes ya tu Certificado Digital?";
+          nextQuestionType = "has_clave";
+        } else if (lastQuestionType === "vida_laboral_link") {
+          responseText = "Accede aquí directamente con tu móvil: [Import@ss - Vida Laboral](https://portal.seg-social.gob.es).";
+          nextQuestionType = null;
+        } else if (lastQuestionType?.startsWith("waiting_for_topic_")) {
+          // User confirmed something but we were waiting for a topic? Just reset.
+          responseText = "¿En qué puedo ayudarte? Dime el trámite y la comunidad autónoma.";
+          nextQuestionType = null;
+        }
+      } else if (lowers.includes("dni")) {
+        responseText = "📍 Renovar DNI: Necesitas cita previa en citapreviadnie.es. ¿Quieres el link de cita?";
+        nextQuestionType = "dni_link";
+      } else if (lowers.includes("padron") || lowers.includes("empadronamiento")) {
+        responseText = "🏠 Padrón: Ve a la web de tu Ayuntamiento. ¿Sabes si tu Ayuntamiento tiene sede online?";
+        nextQuestionType = "padron_query";
+      } else if (lowers.includes("vida laboral")) {
+        responseText = "👷 Vida Laboral: El método más rápido es vía SMS en el portal Import@ss. ¿Te paso el enlace?";
+        nextQuestionType = "vida_laboral_link";
+      } else if (lowers.includes("gracias")) {
+        responseText = "¡De nada! Aquí estoy para lo que necesites.";
+        nextQuestionType = null;
+      } else {
+        // Generic fallback
+        responseText = "No estoy seguro de haberte entendido. Prueba diciendo algo como 'Discapacidad en Andalucia' o 'Desempleo en Madrid'.";
+        nextQuestionType = null;
+      }
     }
 
     setTimeout(() => {
